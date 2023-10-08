@@ -14,6 +14,18 @@ import streamlit as st
 import tempfile
 import os
 from streamlit_extras.buy_me_a_coffee import button
+from langchain.callbacks.base import BaseCallbackHandler
+
+
+class StreamHandler(BaseCallbackHandler):
+    def __init__(self, container, initial_text=""):
+        self.container = container
+        self.text = initial_text
+
+    def on_llm_new_token(self, token: str, **kwargs) -> None:
+        self.text += token
+        self.container.markdown(self.text)
+
 
 button(username="statsholic", floating=True, width=211)
 
@@ -60,20 +72,18 @@ if uploaded_file:
         # If the form is submitted (either by pressing enter or clicking 'Ask')
         if submit_button:
             with st.spinner("Wait for it..."):
-                llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+                chat_box = st.empty()
+                stream_handler = StreamHandler(chat_box)
+                llm = ChatOpenAI(
+                    model_name="gpt-3.5-turbo",
+                    temperature=0,
+                    streaming=True,
+                    callbacks=[stream_handler],
+                )
                 qa_chain = RetrievalQA.from_chain_type(retriever=db.as_retriever(), llm=llm)
                 answer = qa_chain({"query": question})
-                st.write(answer["result"])
+                # st.write(answer["result"])
                 print(answer)
-
-    # question = st.text_input("Your question")
-    # if st.button("Ask"):
-    #     with st.spinner("Wait for it..."):
-    #         llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
-    #         qa_chain = RetrievalQA.from_chain_type(retriever=db.as_retriever(), llm=llm)
-    #         answer = qa_chain({"query": question})
-    #         st.write(answer["result"])
-    #         print(answer)
 
 # relevent documents
 # retriver_from_llm = MultiQueryRetriever.from_llm(retriever=db.as_retriever(), llm=llm)
