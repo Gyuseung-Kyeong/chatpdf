@@ -2,18 +2,20 @@ __import__("pysqlite3")
 import sys
 
 sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+
 from dotenv import load_dotenv
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chat_models import ChatOpenAI
-
-# from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.chains import RetrievalQA
 import streamlit as st
 import tempfile
 import os
+from streamlit_extras.buy_me_a_coffee import button
+
+button(username="statsholic", floating=True, width=211)
 
 load_dotenv()
 
