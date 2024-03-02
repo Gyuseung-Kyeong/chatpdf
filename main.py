@@ -75,12 +75,14 @@ if uploaded_file:
                 chat_box = st.empty()
                 stream_handler = StreamHandler(chat_box)
                 llm = ChatOpenAI(
-                    model_name="gpt-3.5-turbo",
+                    model_name="gpt-3.5-turbo-0125",
                     temperature=0,
                     streaming=True,
                     callbacks=[stream_handler],
                 )
-                qa_chain = RetrievalQA.from_chain_type(retriever=db.as_retriever(), llm=llm)
+                qa_chain = RetrievalQA.from_chain_type(
+                    retriever=db.as_retriever(), llm=llm
+                )
                 answer = qa_chain({"query": question})
                 # st.write(answer["result"])
                 print(answer)
